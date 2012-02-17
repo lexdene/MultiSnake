@@ -4,6 +4,7 @@ TEMPLATE = app
 INCLUDEPATH += ../SnakeCommon/
 
 include(../api/api.pri)
+unix:!mac:QMAKE_LFLAGS += -Wl,--rpath=lib/
 
 SOURCES += \
     main/main.cpp \

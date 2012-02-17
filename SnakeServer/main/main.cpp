@@ -13,6 +13,7 @@ int main(int argc, char *argv[])
 	server.run(60373);
 	quint16 port=server.serverPort();
 	qDebug()<<"snake server :"<<port;
+	/*
 	JGameServerStartup gssu;
 	gssu.m_mainserver = SHost(aa.getAddress(),aa.getPort());
 	gssu.m_loginname="sampleserverrunner";
@@ -37,5 +38,6 @@ int main(int argc, char *argv[])
 	{
 		return ret;
 	}
+	*/
     return a.exec();
 }
