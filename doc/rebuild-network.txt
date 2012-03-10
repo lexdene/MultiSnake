@@ -1,6 +1,0 @@
-1、Mail系统。
-1.1、考虑到“已读邮件”和“未读邮件”等问题，需要在Information系统中增加两个列表。 
-1.2、考虑到“收到新邮件”提醒功能，需要在Information系统的processor对象中添加一个Observer对象（《设计模式》）。
-2、room模型。
-3、MainServer增加来自GameServer的LoginHashCode验证接口。
-4、请求提权功能、注册游戏功能、注册服务器功能。
