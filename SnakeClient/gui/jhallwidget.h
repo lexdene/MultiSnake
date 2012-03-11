@@ -4,14 +4,16 @@
 #include <QWidget>
 
 #include <Global/Global>
+#include <DataStruct/JUserInfo>
 
 namespace Ui {
     class JHallWidget;
 }
 
 class JSnakeProcessor;
-class JRequestUserInfo;
 class JRoomListModel;
+template <class T>
+class JRequestInformation;
 namespace Snake
 {
 	class JRoom;
@@ -28,7 +30,7 @@ public:
 private:
     Ui::JHallWidget *ui;
 	JSnakeProcessor *m_processor;
-	JRequestUserInfo *m_reqUserInfo;
+	JRequestInformation<JUserInfo> *m_reqUserInfo;
 	JRoomListModel *m_roomlistmodel;
 private slots:
 	void on_btn_refresh_room_clicked();

@@ -3,7 +3,7 @@
 
 #include <QInputDialog>
 
-#include <ClientRequest/JRequestUserInfo>
+#include <ClientRequest/JRequestInformation>
 #include <Helper/JGameClientArgumentAnalyser>
 
 #include "jsnakeglobal.h"
@@ -15,7 +15,7 @@ JHallWidget::JHallWidget(QWidget *parent) :
     ui(new Ui::JHallWidget)
 {
 	m_processor=JSnakeProcessor::getInstance();
-	m_reqUserInfo=new JRequestUserInfo(this);
+	m_reqUserInfo=new JRequestInformation<JUserInfo>(this);
 	connect(m_processor,
 			SIGNAL(rcvHello(JCode)),
 			SLOT(om_socket_rcvHello(JCode)));
@@ -126,7 +126,7 @@ void JHallWidget::addUserToList(JID userId)
 {
 	if(ui->lst_player->findItems(tr("%1:").arg(userId),Qt::MatchStartsWith).isEmpty())
 	{
-		JUserInfo userinfo=m_reqUserInfo->pullUserInfo(userId,1000);
+		JUserInfo userinfo=m_reqUserInfo->pullInformation(userId,1000);
 		if(userinfo.getUserId()==userId)
 		{
 			ui->lst_player->addItem(tr("%1:%2:%3")
