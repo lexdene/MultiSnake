@@ -3,6 +3,7 @@ QT       += core network
 QT       -= gui
 
 include(../api/api.pri)
+unix:!mac:QMAKE_LFLAGS += -Wl,--rpath=lib/
 
 TARGET = SnakeServer
 CONFIG   += console
