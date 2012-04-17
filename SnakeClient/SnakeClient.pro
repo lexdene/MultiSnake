@@ -3,7 +3,7 @@ TARGET = SnakeClient
 TEMPLATE = app
 INCLUDEPATH += ../SnakeCommon/
 
-include(../api/api.pri)
+include(../dgpapi.pri)
 
 SOURCES += \
     main/main.cpp \

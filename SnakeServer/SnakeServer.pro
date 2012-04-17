@@ -2,7 +2,7 @@ TEMPLATE = app
 QT       += core network
 QT       -= gui
 
-include(../api/api.pri)
+include(../dgpapi.pri)
 
 TARGET = SnakeServer
 CONFIG   += console
