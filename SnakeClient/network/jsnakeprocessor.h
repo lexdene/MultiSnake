@@ -1,7 +1,7 @@
 #ifndef JSNAKEPROCESSOR_H
 #define JSNAKEPROCESSOR_H
 
-#include <Processor/JClientNetworkDataProcessorBase>
+#include <Processor/JProcessor>
 
 namespace Snake
 {
@@ -9,12 +9,12 @@ namespace Snake
 }
 class QPoint;
 
-class JSnakeProcessor : public JClientNetworkDataProcessorBase
+class JSnakeProcessor : public JProcessor
 {
-    Q_OBJECT
-	explicit JSnakeProcessor(JSession* session,JSocketBase *socket);
+	Q_OBJECT
+	explicit JSnakeProcessor(JSocket* socket , QObject* parent=0);
 public:
-	static JSnakeProcessor* getInstance();
+	static JSnakeProcessor* instance();
 	void sendHello(JID userId);
 	void sendRqsUserlist();
 	void sendAddRoom(const Snake::JRoom&);
@@ -42,8 +42,10 @@ signals:
 	void rcvGA_MoveOn(int num);
 	void rcvGA_Stop();
 public:
-	void process(const QByteArray& data);
-    JType getProcessorType()const;
+	void process(JSocket* socket , const QByteArray& data);
+	JType getProcessorType()const;
+private:
+	JSocket* m_socket ;
 };
 
 #endif // JSNAKEPROCESSOR_H

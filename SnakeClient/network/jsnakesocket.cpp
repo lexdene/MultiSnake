@@ -1,22 +1,12 @@
 #include "jsnakesocket.h"
 
-
-#include <QTcpSocket>
-#include <QCoreApplication>
-
-
-
 JSnakeSocket::JSnakeSocket(QObject *parent) :
-	JClientSocketBase(new QTcpSocket(QCoreApplication::instance()),parent)
+	JSocket(0,parent)
 {
 }
 
-JSnakeSocket* JSnakeSocket::getInstance()
+JSnakeSocket* JSnakeSocket::instance()
 {
-	static JSnakeSocket* instance = NULL;
-	if(NULL==instance){
-		instance = new JSnakeSocket(
-					QCoreApplication::instance());
-	}
-	return instance;
+	static JSnakeSocket instance;
+	return &instance;
 }

@@ -4,7 +4,7 @@
 #include <QCoreApplication>
 #include <QTime>
 
-#include <DataStruct/JElapsedTimer>
+#include <Util/JElapsedTimer>
 
 JSnakeGameOnServer::JSnakeGameOnServer(QObject *parent) :
     QObject(parent)
@@ -54,7 +54,8 @@ void JSnakeGameOnServer::ready(bool ready,int num)
 		m_ready[num]=ready;
 		m_game->resetSnake(num);
 		m_game->resetLifeScore(num);
-		emit getReady(ready,num);
+		//emit getReady(ready,num);
+		
 		if(canStart())
 		{
 			start(Elapse);

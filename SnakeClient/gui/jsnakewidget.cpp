@@ -43,7 +43,7 @@ JSnakeWidget::JSnakeWidget(QWidget *parent) :
 			ui->gridLayout->addWidget(m_lcds[i][j],i+1,j+2,1,1);
         }
     }
-	m_processor=JSnakeProcessor::getInstance();
+	m_processor=JSnakeProcessor::instance();
 	connect(m_processor,
 			SIGNAL(rcvEnterRoom(JID,JID)),
 			SLOT(om_socket_rcvEnterRoom(JID,JID)));
@@ -156,7 +156,7 @@ void JSnakeWidget::om_socket_rcvEnterRoom(JID roomId,JID userId)
 {
 	if(m_roomId<0)
 	{
-        if(roomId>0 && userId==JGameClientArgumentAnalyser::getInstance()->getUserId())
+        if(roomId>0 && userId==JGameClientArgumentAnalyser::instance()->getUserId())
 		{
 			m_roomId=roomId;
 			ui->list_players->addItem(QString::number(userId));
@@ -173,7 +173,7 @@ void JSnakeWidget::om_socket_rcvEscapeRoom(JID roomId,JID userId)
 {
 	if(roomId==m_roomId)
 	{
-        if(userId==JGameClientArgumentAnalyser::getInstance()->getUserId())
+        if(userId==JGameClientArgumentAnalyser::instance()->getUserId())
 		{
 			emit escape(0);
 		}else{

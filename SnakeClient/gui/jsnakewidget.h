@@ -18,11 +18,9 @@ class JSnakeProcessor;
 class JSnakeWidget : public QWidget
 {
     Q_OBJECT
-
 public:
     explicit JSnakeWidget(QWidget *parent = 0);
     ~JSnakeWidget();
-
 protected:
     void paintEvent(QPaintEvent * event );
     void keyPressEvent(QKeyEvent *);

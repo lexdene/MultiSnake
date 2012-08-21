@@ -3,24 +3,34 @@
 
 #include "network/jsnakesocket.h"
 
-#include <DataStruct/SHost>
-#include <DataStruct/JElapsedTimer>
+#include <Util/SHost>
+#include <Util/JElapsedTimer>
 #include <Helper/JConnectHelper>
 #include <Helper/JGameClientArgumentAnalyser>
+#include <Socket/JMainClientSocket>
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    JGameClientArgumentAnalyser *gcaa = JGameClientArgumentAnalyser::getInstance();
-    gcaa->processArgument(a.arguments());
-	JSnakeSocket *socket=JSnakeSocket::getInstance();
-	JConnectHelper connectHelper(socket);
-    connectHelper.connectToHost(gcaa->getGameServer());
+	QApplication a(argc, argv);
+	
+	JGameClientArgumentAnalyser *gcaa = JGameClientArgumentAnalyser::instance();
+	gcaa->processArgument(a.arguments());
+	
+	JConnectHelper connectHelper(JSnakeSocket::instance());
+	connectHelper.connectToHost(gcaa->getGameServer());
 	if(!connectHelper.waitForConnected(1000)){
 		qDebug()<<"snake socket connect failed ."<<connectHelper.getConnectError();
 		return 1;
 	}
-    MainWindow w;
-    w.show();
-    return a.exec();
+	
+	JConnectHelper chmc( JMainClientSocket::instance() );
+	chmc.connectToHost( gcaa->getMainServer() );
+	if(!chmc.waitForConnected(1000)){
+		qDebug()<<"main client socket connect failed ."<<chmc.getConnectError();
+		return 1;
+	}
+	
+	MainWindow w;
+	w.show();
+	return a.exec();
 }

@@ -17,8 +17,9 @@ HEADERS += main/jargumentanalyse.h \
     service/juserlistmanager.h \
     service/jroommanager.h \
     service/jsnakegameonserver.h \
-    network/jsnakeserversocket.h \
-    network/jsnakeserverprocessor.h
+    network/jsnakeserverprocessor.h \
+    network/jsnakeserverdisconnectedprocessor.h \
+    network/jsnakeserverroomsocketmanager.h
 SOURCES += main/jargumentanalyse.cpp \
     main/main.cpp \
     network/jsnakeserver.cpp \
@@ -28,5 +29,6 @@ SOURCES += main/jargumentanalyse.cpp \
     service/jroommanager.cpp \
     ../SnakeCommon/jsnakestream.cpp \
     service/jsnakegameonserver.cpp \
-    network/jsnakeserversocket.cpp \
-    network/jsnakeserverprocessor.cpp
+    network/jsnakeserverprocessor.cpp \
+    network/jsnakeserverdisconnectedprocessor.cpp \
+    network/jsnakeserverroomsocketmanager.cpp

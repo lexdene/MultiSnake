@@ -5,21 +5,17 @@
 #include "jsnakesocket.h"
 #include "jsnakeglobal.h"
 
-JSnakeProcessor::JSnakeProcessor(JSession* session,JSocketBase *socket) :
-	JClientNetworkDataProcessorBase(session,socket)
+JSnakeProcessor::JSnakeProcessor(JSocket* socket , QObject* parent) :
+	JProcessor(parent),
+	m_socket(socket)
 {
+	socket->registerProcessor(this);
 }
 
-JSnakeProcessor* JSnakeProcessor::getInstance()
+JSnakeProcessor* JSnakeProcessor::instance()
 {
-	static JSnakeProcessor* instance=NULL;
-	if(NULL == instance){
-		JSnakeSocket* socket = JSnakeSocket::getInstance();
-		JSession* session = socket->getSession();
-		instance = new JSnakeProcessor(session,socket);
-		socket->registerProcessor(instance);
-	}
-	return instance;
+	static JSnakeProcessor instance(JSnakeSocket::instance());
+	return &instance;
 }
 
 void JSnakeProcessor::sendHello(JID userId)
@@ -29,7 +25,7 @@ void JSnakeProcessor::sendHello(JID userId)
 	QDataStream outstream(&outdata,QIODevice::WriteOnly);
 	outstream<<SP_Hello;
 	outstream<<userId;
-	sendData(outdata);
+	sendData(m_socket,outdata);
 }
 
 void JSnakeProcessor::sendRqsUserlist()
@@ -38,7 +34,7 @@ void JSnakeProcessor::sendRqsUserlist()
 	QByteArray outdata;
 	QDataStream outstream(&outdata,QIODevice::WriteOnly);
 	outstream<<SP_Userlist;
-	sendData(outdata);
+	sendData(m_socket,outdata);
 }
 
 void JSnakeProcessor::sendAddRoom(const Snake::JRoom& room)
@@ -48,7 +44,7 @@ void JSnakeProcessor::sendAddRoom(const Snake::JRoom& room)
 	QDataStream outstream(&outdata,QIODevice::WriteOnly);
 	outstream<<SP_RoominfoAdd;
 	outstream<<room;
-	sendData(outdata);
+	sendData(m_socket,outdata);
 }
 
 void JSnakeProcessor::sendEnterRoom(JID roomId)
@@ -58,7 +54,7 @@ void JSnakeProcessor::sendEnterRoom(JID roomId)
 	QDataStream outstream(&outdata,QIODevice::WriteOnly);
 	outstream<<SP_RoomEnter;
 	outstream<<roomId;
-	sendData(outdata);
+	sendData(m_socket,outdata);
 }
 
 void JSnakeProcessor::sendEscapeRoom()
@@ -67,7 +63,7 @@ void JSnakeProcessor::sendEscapeRoom()
 	QByteArray outdata;
 	QDataStream outstream(&outdata,QIODevice::WriteOnly);
 	outstream<<SP_RoomEscape;
-	sendData(outdata);
+	sendData(m_socket,outdata);
 }
 
 void JSnakeProcessor::sendRqsRoomlist()
@@ -76,7 +72,7 @@ void JSnakeProcessor::sendRqsRoomlist()
 	QByteArray outdata;
 	QDataStream outstream(&outdata,QIODevice::WriteOnly);
 	outstream<<SP_Roomlist;
-	sendData(outdata);
+	sendData(m_socket,outdata);
 }
 
 void JSnakeProcessor::sendGA_Ready(bool ready)
@@ -86,7 +82,7 @@ void JSnakeProcessor::sendGA_Ready(bool ready)
 	QDataStream outstream(&outdata,QIODevice::WriteOnly);
 	outstream<<SP_GA_Ready;
 	outstream<<ready;
-	sendData(outdata);
+	sendData(m_socket,outdata);
 }
 
 void JSnakeProcessor::sendGA_Turn(qint16 dire)
@@ -96,10 +92,10 @@ void JSnakeProcessor::sendGA_Turn(qint16 dire)
 	QDataStream outstream(&outdata,QIODevice::WriteOnly);
 	outstream<<SP_GA_Turn;
 	outstream<<dire;
-	sendData(outdata);
+	sendData(m_socket,outdata);
 }
 
-void JSnakeProcessor::process(const QByteArray& data)
+void JSnakeProcessor::process(JSocket* , const QByteArray& data)
 {
 	using namespace SnakeProtocol;
 	QDataStream stream(data);

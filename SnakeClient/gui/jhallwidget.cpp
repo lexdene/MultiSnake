@@ -3,19 +3,19 @@
 
 #include <QInputDialog>
 
-#include <ClientRequest/JRequestInformation>
+#include <Information/JRequestInformation>
 #include <Helper/JGameClientArgumentAnalyser>
+#include <Socket/JMainClientSocket>
 
 #include "jsnakeglobal.h"
 #include "network/jsnakeprocessor.h"
 #include "service/jroomlistmodel.h"
 
 JHallWidget::JHallWidget(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::JHallWidget)
+	QWidget(parent),
+	ui(new Ui::JHallWidget)
 {
-	m_processor=JSnakeProcessor::getInstance();
-	m_reqUserInfo=new JRequestInformation<JUserInfo>(this);
+	m_processor=JSnakeProcessor::instance();
 	connect(m_processor,
 			SIGNAL(rcvHello(JCode)),
 			SLOT(om_socket_rcvHello(JCode)));
@@ -34,7 +34,7 @@ JHallWidget::JHallWidget(QWidget *parent) :
 	m_roomlistmodel=new JRoomListModel(this);
 	ui->setupUi(this);
 	ui->listView_room->setModel(m_roomlistmodel);
-    m_processor->sendHello(JGameClientArgumentAnalyser::getInstance()->getUserId());
+	m_processor->sendHello(JGameClientArgumentAnalyser::instance()->getUserId());
 	m_processor->sendRqsRoomlist();
 }
 
@@ -87,7 +87,7 @@ void JHallWidget::om_socket_rcvAddRoom(const Snake::JRoom& room)
 
 void JHallWidget::om_socket_rcvEnterRoom(JID roomId,JID userId)
 {
-    if(roomId>0 && userId==JGameClientArgumentAnalyser::getInstance()->getUserId())
+	if(roomId>0 && userId==JGameClientArgumentAnalyser::instance()->getUserId())
 	{
 		emit enterGame(1);
 	}else if(0==roomId){
@@ -126,13 +126,16 @@ void JHallWidget::addUserToList(JID userId)
 {
 	if(ui->lst_player->findItems(tr("%1:").arg(userId),Qt::MatchStartsWith).isEmpty())
 	{
-		JUserInfo userinfo=m_reqUserInfo->pullInformation(userId,1000);
-		if(userinfo.getUserId()==userId)
+		JRequestUserInfo rui(JMainClientSocket::instance(),0);
+		JUserInfo userinfo=rui.pullInformation(userId,1000);
+		if(userinfo.m_userId==userId)
 		{
-			ui->lst_player->addItem(tr("%1:%2:%3")
-									.arg(userinfo.getUserId())
-									.arg(userinfo.getNickname())
-									.arg(userinfo.getOrganization()));
+			ui->lst_player->addItem(
+				tr("%1:%2:%3")
+				.arg(userinfo.m_userId)
+				.arg(userinfo.m_nickname)
+				.arg(userinfo.m_organization)
+			);
 		}else{
 			ui->lst_player->addItem(tr("%1:").arg(userId));
 		}

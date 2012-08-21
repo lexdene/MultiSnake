@@ -1,44 +1,44 @@
 #ifndef JSNAKESERVERPROCESSOR_H
 #define JSNAKESERVERPROCESSOR_H
 
-#include <Processor/JServerNetworkDataProcessorBase>
+#include <Processor/JProcessor>
 
 #include "jsnake.h"
 
 class JRoomManager;
 class QPoint;
 
-class JSnakeServerProcessor : public JServerNetworkDataProcessorBase
+class JSnakeServerProcessor : public JProcessor
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-	explicit JSnakeServerProcessor(JSession* session,JSocketBase *socket);
-	void process(const QByteArray& data);
-    JType getProcessorType()const;
-protected slots:
-	void on_socket_disconnected();
+	static JSnakeServerProcessor* instance();
+	void process(JSocket* socket , const QByteArray& data);
+	JType getProcessorType()const;
+	
+	void processEscapeRoom(JSocket* socket);
 private:
 	JRoomManager* m_roomMng;
 private slots:
-	void sendUserlist();
+	void sendUserlist(JSocket* socket);
 	void sendRoominfoUpdate(JID roomId);
 	void sendRoominfoAdd(JID roomId);
 	void sendRoominfoDelete(JID roomId);
 	void sendRoomEnter(JID roomId,JID userId);
 	void sendRoomEscape(JID roomId,JID userId);
 
-	void sendGameAct_getReady(bool ready,int num);
-	void sendGameAct_countDown(int sec);
-	void sendGameAct_getCommand();
-	void sendGameAct_turn(JSnake::EDire dire,int num);
-	void sendGameAct_collision(int num);
-	void sendGameAct_createBean(const QPoint& pt);
-	void sendGameAct_increase(int num);
-	void sendGameAct_moveOn(int num);
-	void sendGameAct_Stop();
+	void sendGameAct_getReady(JSocket* socket , bool ready,int num);
+	void sendGameAct_countDown(JSocket* socket , int sec);
+	void sendGameAct_getCommand(JSocket* socket);
+	void sendGameAct_turn(JSocket* socket , JSnake::EDire dire,int num);
+	void sendGameAct_collision(JSocket* socket , int num);
+	void sendGameAct_createBean(JSocket* socket , const QPoint& pt);
+	void sendGameAct_increase(JSocket* socket , int num);
+	void sendGameAct_moveOn(JSocket* socket , int num);
+	void sendGameAct_Stop(JSocket* socket);
 private:
-	void processEnterRoom(JID roomId);
-	void processEscapeRoom();
+	void processEnterRoom(JSocket* socket , JID roomId);
+	explicit JSnakeServerProcessor(QObject* parent=0);
 };
 
 #endif // JSNAKESERVERPROCESSOR_H

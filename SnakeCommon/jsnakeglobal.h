@@ -4,7 +4,7 @@
 #include <QList>
 
 #include <Global/Global>
-#include <Global/Processor>
+#include <Processor/ProcessorType>
 
 class QDataStream;
 namespace Snake{

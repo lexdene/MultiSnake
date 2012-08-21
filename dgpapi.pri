@@ -1,2 +1,2 @@
-include(../Dlut-Game-Platform/api/api.pri)
+include(../Dlut-Game-Platform/libdgpapi/dgpapi.pri)
 DESTDIR = $$DGP_OUTPUTDIR/MultiSnake
