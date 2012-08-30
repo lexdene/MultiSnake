@@ -163,6 +163,7 @@ void JSnakeProcessor::process(JSocket* , const QByteArray& data)
 			QList<JID> userlist;
 			stream>>roomId;
 			stream>>userlist;
+			qDebug()<<"SP_Userlist:"<<roomId<<userlist;
 			emit rcvUserlist(roomId,userlist);
 		}
 		break;

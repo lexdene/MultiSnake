@@ -63,7 +63,7 @@ Product by JDMD studio .</string>
     <string>create room</string>
    </property>
   </widget>
-  <widget class="QListWidget" name="lst_player">
+  <widget class="JHallUserListWidget" name="lst_player">
    <property name="geometry">
     <rect>
      <x>470</x>
@@ -126,6 +126,13 @@ Product by JDMD studio .</string>
    </property>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>JHallUserListWidget</class>
+   <extends>QListView</extends>
+   <header>gui/jhalluserlistwidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

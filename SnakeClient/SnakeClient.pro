@@ -15,7 +15,9 @@ SOURCES += \
     network/jsnakesocket.cpp \
     ../SnakeCommon/jsnakestream.cpp \
     service/jroomlistmodel.cpp \
-    network/jsnakeprocessor.cpp
+    network/jsnakeprocessor.cpp \
+    gui/jhalluserlistwidget.cpp \
+    model/jhalluserlistmodel.cpp
 
 HEADERS  += \
     gui/mainwindow.h \
@@ -26,7 +28,9 @@ HEADERS  += \
     network/jsnakesocket.h \
     ../SnakeCommon/jsnakeglobal.h \
     service/jroomlistmodel.h \
-    network/jsnakeprocessor.h
+    network/jsnakeprocessor.h \
+    gui/jhalluserlistwidget.h \
+    model/jhalluserlistmodel.h
 
 FORMS    += \
     gui/mainwindow.ui \

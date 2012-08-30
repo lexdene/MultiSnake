@@ -3,69 +3,35 @@
 
 #include <QInputDialog>
 
-#include <Information/JRequestInformation>
 #include <Helper/JGameClientArgumentAnalyser>
-#include <Socket/JMainClientSocket>
 
-#include "jsnakeglobal.h"
 #include "network/jsnakeprocessor.h"
 #include "service/jroomlistmodel.h"
+#include "model/jhalluserlistmodel.h"
 
 JHallWidget::JHallWidget(QWidget *parent) :
 	QWidget(parent),
 	ui(new Ui::JHallWidget)
 {
-	m_processor=JSnakeProcessor::instance();
-	connect(m_processor,
-			SIGNAL(rcvHello(JCode)),
-			SLOT(om_socket_rcvHello(JCode)));
-	connect(m_processor,
-			SIGNAL(rcvUserlist(JID,QList<JID>)),
-			SLOT(om_socket_rcvUserlist(JID,QList<JID>)));
-	connect(m_processor,
-			SIGNAL(rcvAddRoom(Snake::JRoom)),
-			SLOT(om_socket_rcvAddRoom(Snake::JRoom)));
-	connect(m_processor,
-			SIGNAL(rcvEnterRoom(JID,JID)),
-			SLOT(om_socket_rcvEnterRoom(JID,JID)));
-	connect(m_processor,
-			SIGNAL(rcvEscapeRoom(JID,JID)),
-			SLOT(om_socket_rcvEscapeRoom(JID,JID)));
 	m_roomlistmodel=new JRoomListModel(this);
 	ui->setupUi(this);
 	ui->listView_room->setModel(m_roomlistmodel);
-	m_processor->sendHello(JGameClientArgumentAnalyser::instance()->getUserId());
-	m_processor->sendRqsRoomlist();
+	JHallUserListModel* hulm = new JHallUserListModel(this);
+	ui->lst_player->setModel( hulm );
+	connect(
+		ui->btn_refresh_userlist,
+		SIGNAL(clicked()),
+		hulm,
+		SLOT(refresh())
+	);
+	JSnakeProcessor::instance()->sendHello(
+		JGameClientArgumentAnalyser::instance()->getUserId()
+	);
 }
 
 JHallWidget::~JHallWidget()
 {
 	delete ui;
-}
-
-void JHallWidget::on_btn_refresh_userlist_clicked()
-{
-	ui->lst_player->clear();
-	m_processor->sendRqsUserlist();
-}
-
-void JHallWidget::om_socket_rcvHello(JCode code)
-{
-	if(0==code)
-	{
-		m_processor->sendRqsUserlist();
-	}
-}
-
-void JHallWidget::om_socket_rcvUserlist(JID roomId,const QList<JID>& userlist)
-{
-	if(roomId!=0) return;
-	ui->lst_player->clear();
-	foreach(JID userId,userlist)
-	{
-		qDebug()<<"JHallWidget::om_socket_rcvUserlist:"<<userId;
-		addUserToList(userId);
-	}
 }
 
 void JHallWidget::on_btn_create_room_clicked()
@@ -77,67 +43,17 @@ void JHallWidget::on_btn_create_room_clicked()
 	{
 		return;
 	}
-	m_processor->sendAddRoom(room);
-}
-
-void JHallWidget::om_socket_rcvAddRoom(const Snake::JRoom& room)
-{
-	qDebug()<<room.getRoomId()<<room.getRoomName();
-}
-
-void JHallWidget::om_socket_rcvEnterRoom(JID roomId,JID userId)
-{
-	if(roomId>0 && userId==JGameClientArgumentAnalyser::instance()->getUserId())
-	{
-		emit enterGame(1);
-	}else if(0==roomId){
-		addUserToList(userId);
-	}
-}
-
-void JHallWidget::om_socket_rcvEscapeRoom(JID roomId,JID userId)
-{
-	qDebug()<<"JHallWidget::om_socket_rcvEscapeRoom:"<<roomId<<userId;
-	if(0==roomId)
-	{
-		QList<QListWidgetItem *> items=ui->lst_player->findItems(tr("%1:").arg(userId),Qt::MatchStartsWith);
-		foreach(QListWidgetItem* item,items)
-		{
-			qDebug()<<"JHallWidget::om_socket_rcvEscapeRoom"<<item->text();
-			ui->lst_player->removeItemWidget(item);
-			delete item;
-		}
-	}
+	JSnakeProcessor::instance()->sendAddRoom(room);
 }
 
 void JHallWidget::on_btn_enter_room_clicked()
 {
 	JID roomId;
 	roomId=m_roomlistmodel->data(ui->listView_room->currentIndex(),Qt::EditRole).toInt();
-	m_processor->sendEnterRoom(roomId);
+	JSnakeProcessor::instance()->sendEnterRoom(roomId);
 }
 
 void JHallWidget::on_btn_refresh_room_clicked()
 {
-	m_processor->sendRqsRoomlist();
-}
-
-void JHallWidget::addUserToList(JID userId)
-{
-	if(ui->lst_player->findItems(tr("%1:").arg(userId),Qt::MatchStartsWith).isEmpty())
-	{
-		JRequestUserInfo rui(JMainClientSocket::instance(),0);
-		JUserInfo userinfo=rui.pullInformation(userId,1000);
-		if(userinfo.m_userId==userId)
-		{
-			ui->lst_player->addItem(
-				tr("%1:%2:%3")
-				.arg(userinfo.m_userId)
-				.arg(userinfo.m_nickname)
-				.arg(userinfo.m_organization)
-			);
-		}else{
-			ui->lst_player->addItem(tr("%1:").arg(userId));
-		}
-	}
+	JSnakeProcessor::instance()->sendRqsRoomlist();
 }
