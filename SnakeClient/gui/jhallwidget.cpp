@@ -24,6 +24,11 @@ JHallWidget::JHallWidget(QWidget *parent) :
 		hulm,
 		SLOT(refresh())
 	);
+	connect(
+		JSnakeProcessor::instance(),
+		SIGNAL(rcvEnterRoom(JID,JID)),
+		SLOT(receiveEnterRoom(JID,JID))
+	);
 	JSnakeProcessor::instance()->sendHello(
 		JGameClientArgumentAnalyser::instance()->getUserId()
 	);
@@ -56,4 +61,12 @@ void JHallWidget::on_btn_enter_room_clicked()
 void JHallWidget::on_btn_refresh_room_clicked()
 {
 	JSnakeProcessor::instance()->sendRqsRoomlist();
+}
+
+void JHallWidget::receiveEnterRoom(JID roomId,JID userId)
+{
+	if(roomId>0 && userId==JGameClientArgumentAnalyser::instance()->getUserId())
+	{
+		emit enterGame(1);
+	}
 }
