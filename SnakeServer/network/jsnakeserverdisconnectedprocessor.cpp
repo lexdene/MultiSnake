@@ -18,6 +18,8 @@ void JSnakeServerDisconnectedProcessor::process(JSocket* socket , const QByteArr
 	JSnakeServerProcessor::instance()->processEscapeRoom(socket);
 	JUserlistManager ulm;
 	ulm.removeUser(socket->session()->userId());
+	
+	socket->deleteLater() ;
 }
 
 JType JSnakeServerDisconnectedProcessor::getProcessorType()const
