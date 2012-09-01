@@ -4,10 +4,12 @@
 #include <QCoreApplication>
 #include <QTime>
 
-#include <Util/JElapsedTimer>
+#include "network/jsnakeserverroomsocketmanager.h"
+#include "network/jsnakeserverprocessor.h"
 
-JSnakeGameOnServer::JSnakeGameOnServer(QObject *parent) :
-    QObject(parent)
+JSnakeGameOnServer::JSnakeGameOnServer(JID roomId,QObject *parent) :
+    QObject(parent),
+    m_roomId(roomId)
 {
 	m_timer=new QTimer(this);
 	m_game=new JSnakeGame;
@@ -101,6 +103,105 @@ bool JSnakeGameOnServer::isReady(int num)const
 	return false;
 }
 
+void JSnakeGameOnServer::getReady(bool ready,int num){
+	JSnakeServerRoomSocketManager *ssrsm=JSnakeServerRoomSocketManager::instance();
+	JSnakeServerProcessor *processor = JSnakeServerProcessor::instance();
+	foreach(JSocket *socketInRoom,ssrsm->socketListInRoom( m_roomId ) ){
+		processor->sendGameAct_getReady(
+			socketInRoom,
+			ready,
+			num
+		);
+	}
+}
+
+void JSnakeGameOnServer::countDown(int sec){
+	JSnakeServerRoomSocketManager *ssrsm=JSnakeServerRoomSocketManager::instance();
+	JSnakeServerProcessor *processor = JSnakeServerProcessor::instance();
+	foreach(JSocket *socketInRoom,ssrsm->socketListInRoom( m_roomId ) ){
+		processor->sendGameAct_countDown(
+			socketInRoom,
+			sec
+		);
+	}
+}
+
+void JSnakeGameOnServer::getCommand(){
+	JSnakeServerRoomSocketManager *ssrsm=JSnakeServerRoomSocketManager::instance();
+	JSnakeServerProcessor *processor = JSnakeServerProcessor::instance();
+	foreach(JSocket *socketInRoom,ssrsm->socketListInRoom( m_roomId ) ){
+		processor->sendGameAct_getCommand(
+			socketInRoom
+		);
+	}
+}
+
+void JSnakeGameOnServer::turn(JSnake::EDire dire,int num){
+	JSnakeServerRoomSocketManager *ssrsm=JSnakeServerRoomSocketManager::instance();
+	JSnakeServerProcessor *processor = JSnakeServerProcessor::instance();
+	foreach(JSocket *socketInRoom,ssrsm->socketListInRoom( m_roomId ) ){
+		processor->sendGameAct_turn(
+			socketInRoom,
+			dire,
+			num
+		);
+	}
+}
+
+void JSnakeGameOnServer::collision(int num){
+	JSnakeServerRoomSocketManager *ssrsm=JSnakeServerRoomSocketManager::instance();
+	JSnakeServerProcessor *processor = JSnakeServerProcessor::instance();
+	foreach(JSocket *socketInRoom,ssrsm->socketListInRoom( m_roomId ) ){
+		processor->sendGameAct_collision(
+			socketInRoom,
+			num
+		);
+	}
+}
+
+void JSnakeGameOnServer::createBean(const QPoint& pt){
+	JSnakeServerRoomSocketManager *ssrsm=JSnakeServerRoomSocketManager::instance();
+	JSnakeServerProcessor *processor = JSnakeServerProcessor::instance();
+	foreach(JSocket *socketInRoom,ssrsm->socketListInRoom( m_roomId ) ){
+		processor->sendGameAct_createBean(
+			socketInRoom,
+			pt
+		);
+	}
+}
+
+void JSnakeGameOnServer::increase(int num){
+	JSnakeServerRoomSocketManager *ssrsm=JSnakeServerRoomSocketManager::instance();
+	JSnakeServerProcessor *processor = JSnakeServerProcessor::instance();
+	foreach(JSocket *socketInRoom,ssrsm->socketListInRoom( m_roomId ) ){
+		processor->sendGameAct_increase(
+			socketInRoom,
+			num
+		);
+	}
+}
+
+void JSnakeGameOnServer::moveOn(int num){
+	JSnakeServerRoomSocketManager *ssrsm=JSnakeServerRoomSocketManager::instance();
+	JSnakeServerProcessor *processor = JSnakeServerProcessor::instance();
+	foreach(JSocket *socketInRoom,ssrsm->socketListInRoom( m_roomId ) ){
+		processor->sendGameAct_moveOn(
+			socketInRoom,
+			num
+		);
+	}
+}
+
+void JSnakeGameOnServer::getStop(){
+	JSnakeServerRoomSocketManager *ssrsm=JSnakeServerRoomSocketManager::instance();
+	JSnakeServerProcessor *processor = JSnakeServerProcessor::instance();
+	foreach(JSocket *socketInRoom,ssrsm->socketListInRoom( m_roomId ) ){
+		processor->sendGameAct_Stop(
+			socketInRoom
+		);
+	}
+}
+
 void JSnakeGameOnServer::on_timer_timeout()
 {
 	if(m_countDown>0)
@@ -124,12 +225,23 @@ void JSnakeGameOnServer::on_timer_timeout()
 			m_dires[i]=JSnake::ED_NONE;
 		}
 		emit getCommand();
+		
+		/*
 		JElapsedTimer timer;
 		timer.start();
 		while(timer.elapsed()< m_interval_msec*0.2)
 		{
 			QCoreApplication::processEvents();
 		}
+		*/
+		QEventLoop el;
+		QTimer::singleShot(
+			m_interval_msec*0.2 ,
+			&el,
+			SLOT(quit())
+		);
+		el.exec();
+		
 		for(i=0;i<NUM_SNAKE;++i)
 		{
 			if(m_sit[i] && m_dires[i]!=JSnake::ED_NONE)

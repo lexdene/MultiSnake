@@ -3,6 +3,8 @@
 
 #include <QObject>
 
+#include <Global/Global>
+
 #include "jsnakegame.h"
 
 class JSnakeGame;
@@ -12,7 +14,7 @@ class JSnakeGameOnServer : public QObject
 {
     Q_OBJECT
 public:
-	explicit JSnakeGameOnServer(QObject *parent = 0);
+	explicit JSnakeGameOnServer(JID roomId,QObject *parent = 0);
 	virtual ~JSnakeGameOnServer();
 	void enter(int num);
 	void escape(int num);
@@ -22,8 +24,16 @@ public:
 	void stop();
 	bool isReady(int num)const;
 private:
+	const JID m_roomId;
 	JSnakeGame* m_game;
-signals:
+	QTimer* m_timer;
+	int m_interval_msec;
+	int m_countDown;
+	JSnake::EDire m_dires[NUM_SNAKE];
+	bool m_sit[NUM_SNAKE];
+	bool m_ready[NUM_SNAKE];
+	bool m_hasStarted;
+private:
 	void getReady(bool ready,int num);
 	void countDown(int sec);
 	void getCommand();
@@ -33,14 +43,6 @@ signals:
 	void increase(int num);
 	void moveOn(int num);
 	void getStop();
-private:
-	QTimer* m_timer;
-	int m_interval_msec;
-	int m_countDown;
-	JSnake::EDire m_dires[NUM_SNAKE];
-	bool m_sit[NUM_SNAKE];
-	bool m_ready[NUM_SNAKE];
-	bool m_hasStarted;
 private slots:
 	void on_timer_timeout();
 protected:

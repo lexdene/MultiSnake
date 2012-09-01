@@ -4,7 +4,6 @@
 #include "network/jsnakesocket.h"
 
 #include <Util/SHost>
-#include <Util/JElapsedTimer>
 #include <Helper/JConnectHelper>
 #include <Helper/JGameClientArgumentAnalyser>
 #include <Socket/JMainClientSocket>

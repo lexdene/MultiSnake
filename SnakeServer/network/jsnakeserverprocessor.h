@@ -16,17 +16,13 @@ public:
 	void process(JSocket* socket , const QByteArray& data);
 	JType getProcessorType()const;
 	
-	void processEscapeRoom(JSocket* socket);
-private:
-	JRoomManager* m_roomMng;
-private slots:
 	void sendUserlist(JSocket* socket);
 	void sendRoominfoUpdate(JID roomId);
 	void sendRoominfoAdd(JID roomId);
 	void sendRoominfoDelete(JID roomId);
 	void sendRoomEnter(JID roomId,JID userId);
 	void sendRoomEscape(JID roomId,JID userId);
-
+	
 	void sendGameAct_getReady(JSocket* socket , bool ready,int num);
 	void sendGameAct_countDown(JSocket* socket , int sec);
 	void sendGameAct_getCommand(JSocket* socket);
@@ -36,8 +32,11 @@ private slots:
 	void sendGameAct_increase(JSocket* socket , int num);
 	void sendGameAct_moveOn(JSocket* socket , int num);
 	void sendGameAct_Stop(JSocket* socket);
-private:
+	
 	void processEnterRoom(JSocket* socket , JID roomId);
+	void processEscapeRoom(JSocket* socket);
+private:
+	JRoomManager* m_roomMng;
 	explicit JSnakeServerProcessor(QObject* parent=0);
 };
 

@@ -36,7 +36,7 @@ JCode JRoomManager::addRoom(Snake::JRoom& room)
 			{
 				room.setRoomId(i);
 				m_rooms.insert(room.getRoomId(),room);
-				m_games.insert(room.getRoomId(),new JSnakeGameOnServer(this));
+				m_games.insert(room.getRoomId(),new JSnakeGameOnServer(room.getRoomId(),this));
 				emit roomAdded(room.getRoomId());
 				return 0;
 			}
@@ -44,7 +44,7 @@ JCode JRoomManager::addRoom(Snake::JRoom& room)
 		return 2;
 	}
 	m_rooms.insert(room.getRoomId(),room);
-	m_games.insert(room.getRoomId(),new JSnakeGameOnServer(this));
+	m_games.insert(room.getRoomId(),new JSnakeGameOnServer(room.getRoomId(),this));
 	emit roomAdded(room.getRoomId());
 	return 0;
 }
