@@ -5,6 +5,7 @@
 #include "service/jroommanager.h"
 #include "service/jsnakegameonserver.h"
 #include "jsnakeserver.h"
+#include "jsnakeserverroomsocketmanager.h"
 
 #include <Socket/JSocket>
 #include <Session/JSession>
@@ -111,15 +112,33 @@ void JSnakeServerProcessor::process(JSocket* socket , const QByteArray& data)
 		break;
 	case SP_GA_Ready:
 		{
+			qDebug()<<__FUNCTION__<<__LINE__<<"SP_GA_Ready";
 			bool ready;
 			stream>>ready;
-			JUserlistManager ulm;
+			JID userId;
 			JID roomId;
-			roomId=ulm.getRoomByUser(socket->session()->userId());
+			userId = socket->session()->userId();
+			qDebug()<<__FUNCTION__<<__LINE__<<"userId:"<<userId;
+			
+			JUserlistManager ulm;
+			roomId=ulm.getRoomByUser(userId);
+			qDebug()<<__FUNCTION__<<__LINE__<<"roomId:"<<roomId;
+			
 			JSnakeGameOnServer *game=m_roomMng->getGame(roomId);
 			Q_ASSERT(game!=NULL);
 			Snake::JRoom room=m_roomMng->getRoomInfo(roomId);
-			game->ready(ready,room.getPositionById(socket->session()->userId()));
+			int position = room.getPositionById(socket->session()->userId());
+			game->ready(ready,position);
+			
+			JSnakeServerRoomSocketManager *ssrsm=JSnakeServerRoomSocketManager::instance();
+			foreach(JSocket *socketInRoom,ssrsm->socketListInRoom( roomId ) ){
+				qDebug()<<__FUNCTION__<<__LINE__<<"socketInRoom";
+				sendGameAct_getReady(
+					socketInRoom,
+					ready,
+					position
+				);
+			}
 		}
 		break;
 	case SP_GA_CountDown:
@@ -322,12 +341,19 @@ void JSnakeServerProcessor::sendGameAct_Stop(JSocket* socket)
 void JSnakeServerProcessor::processEnterRoom(JSocket* socket , JID roomId)
 {
 	JID userId=socket->session()->userId();
+	qDebug()<<__FUNCTION__<<__LINE__<<"userId:"<<userId<<"roomId:"<<roomId;
 	JUserlistManager ulm;
 	JID formerRoomId=ulm.getRoomByUser(userId);
 	if(formerRoomId!=0) return;
 	if(0==m_roomMng->enterRoom(roomId,userId))
 	{
-		Q_ASSERT(0==ulm.moveUser(userId,roomId));
+		JCode mur = ulm.moveUser(userId,roomId);
+		Q_ASSERT(0==mur);
+		
+		qDebug()<<__FUNCTION__<<__LINE__<<"move user result:"<<mur;
+		JSnakeServerRoomSocketManager *ssrsm=JSnakeServerRoomSocketManager::instance();
+		ssrsm->enterRoom(roomId,socket);
+		
 		JSnakeGameOnServer *game=m_roomMng->getGame(roomId);
 //		connect(game,SIGNAL(getReady(bool,int)),SLOT(sendGameAct_getReady(bool,int)));
 //		connect(game,SIGNAL(countDown(int)),SLOT(sendGameAct_countDown(int)));
