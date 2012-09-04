@@ -2,10 +2,12 @@
 
 #include "jsnakeserverprocessor.h"
 #include "service/juserlistmanager.h"
+#include "jsnakeserver.h"
 
 #include <Socket/JSocket>
 #include <Session/JSession>
 #include <Processor/ProcessorType>
+#include <Socket/JBroadcastCenter>
 
 JSnakeServerDisconnectedProcessor* JSnakeServerDisconnectedProcessor::instance()
 {
@@ -15,6 +17,7 @@ JSnakeServerDisconnectedProcessor* JSnakeServerDisconnectedProcessor::instance()
 
 void JSnakeServerDisconnectedProcessor::process(JSocket* socket , const QByteArray&)
 {
+	JSnakeServer::broadcastCenter()->disconnect( socket );
 	JSnakeServerProcessor::instance()->processEscapeRoom(socket);
 	JUserlistManager ulm;
 	ulm.removeUser(socket->session()->userId());

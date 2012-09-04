@@ -34,6 +34,7 @@ void JSnakeServerProcessor::process(JSocket* socket , const QByteArray& data)
 	QDataStream stream(data);
 	JProtocol protocol;
 	stream>>protocol;
+	qDebug()<<"JSnakeServerProcessor::process"<<" protocol:"<<protocol;
 	switch(protocol)
 	{
 	case SP_Hello :
@@ -68,7 +69,6 @@ void JSnakeServerProcessor::process(JSocket* socket , const QByteArray& data)
 			JID roomId;
 			stream>>roomId;
 			qDebug()<<"unfinish protocol : SP_RoominfoUpdate : roomid="<<roomId;
-			// sendRoominfoUpdate(socket,roomId);
 		}
 		break;
 	case SP_RoominfoAdd :
@@ -81,7 +81,6 @@ void JSnakeServerProcessor::process(JSocket* socket , const QByteArray& data)
 				processEscapeRoom(socket);
 				processEnterRoom(socket,roominfo.getRoomId());
 			}
-//			signal has connected to the slot , so it can send roominfo add automatically.
 		}
 		break;
 	case SP_RoominfoDelete :
@@ -348,22 +347,13 @@ void JSnakeServerProcessor::processEnterRoom(JSocket* socket , JID roomId)
 	if(0==m_roomMng->enterRoom(roomId,userId))
 	{
 		JCode mur = ulm.moveUser(userId,roomId);
+		qDebug()<<__FUNCTION__<<__LINE__<<"move user result:"<<mur;
 		Q_ASSERT(0==mur);
 		
-		qDebug()<<__FUNCTION__<<__LINE__<<"move user result:"<<mur;
 		JSnakeServerRoomSocketManager *ssrsm=JSnakeServerRoomSocketManager::instance();
 		ssrsm->enterRoom(roomId,socket);
 		
 		JSnakeGameOnServer *game=m_roomMng->getGame(roomId);
-//		connect(game,SIGNAL(getReady(bool,int)),SLOT(sendGameAct_getReady(bool,int)));
-//		connect(game,SIGNAL(countDown(int)),SLOT(sendGameAct_countDown(int)));
-//		connect(game,SIGNAL(getCommand()),SLOT(sendGameAct_getCommand()));
-//		connect(game,SIGNAL(turn(JSnake::EDire,int)),SLOT(sendGameAct_turn(JSnake::EDire,int)));
-//		connect(game,SIGNAL(collision(int)),SLOT(sendGameAct_collision(int)));
-//		connect(game,SIGNAL(createBean(QPoint)),SLOT(sendGameAct_createBean(QPoint)));
-//		connect(game,SIGNAL(increase(int)),SLOT(sendGameAct_increase(int)));
-//		connect(game,SIGNAL(moveOn(int)),SLOT(sendGameAct_moveOn(int)));
-//		connect(game,SIGNAL(getStop()),SLOT(sendGameAct_Stop()));
 		sendUserlist(socket);
 		for(int i=0;i<NUM_SNAKE;++i)
 		{
@@ -381,12 +371,15 @@ void JSnakeServerProcessor::processEscapeRoom(JSocket* socket)
 	JUserlistManager ulm;
 	JID formerRoomId=ulm.getRoomByUser(userId);
 	if(formerRoomId<0) return;
-	Q_ASSERT(0==ulm.moveUser(userId,0));
-	Q_ASSERT(0==m_roomMng->escapeRoom(formerRoomId,userId));
-	JSnakeGameOnServer *game=m_roomMng->getGame(formerRoomId);
-	if(game!=NULL)
-	{
-		game->disconnect(this);
-	}
-//	sendUserlist(socket);
+	
+	JCode rmu = ulm.moveUser(userId,0);
+	qDebug()<<__FUNCTION__<<__LINE__<<"move user result:"<<rmu;
+	Q_ASSERT(0==rmn);
+	
+	JCode rer = m_roomMng->escapeRoom(formerRoomId,userId);
+	qDebug()<<__FUNCTION__<<__LINE__<<"escape room result:"<<rer;
+	Q_ASSERT(0==rer);
+	
+	JSnakeServerRoomSocketManager *ssrsm=JSnakeServerRoomSocketManager::instance();
+	ssrsm->escapeRoom(formerRoomId,socket);
 }

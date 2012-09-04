@@ -17,12 +17,6 @@ public:
 	JType getProcessorType()const;
 	
 	void sendUserlist(JSocket* socket);
-	void sendRoominfoUpdate(JID roomId);
-	void sendRoominfoAdd(JID roomId);
-	void sendRoominfoDelete(JID roomId);
-	void sendRoomEnter(JID roomId,JID userId);
-	void sendRoomEscape(JID roomId,JID userId);
-	
 	void sendGameAct_getReady(JSocket* socket , bool ready,int num);
 	void sendGameAct_countDown(JSocket* socket , int sec);
 	void sendGameAct_getCommand(JSocket* socket);
@@ -35,6 +29,14 @@ public:
 	
 	void processEnterRoom(JSocket* socket , JID roomId);
 	void processEscapeRoom(JSocket* socket);
+	
+// broadcast functions
+public slots:
+	void sendRoominfoUpdate(JID roomId);
+	void sendRoominfoAdd(JID roomId);
+	void sendRoominfoDelete(JID roomId);
+	void sendRoomEnter(JID roomId,JID userId);
+	void sendRoomEscape(JID roomId,JID userId);
 private:
 	JRoomManager* m_roomMng;
 	explicit JSnakeServerProcessor(QObject* parent=0);
